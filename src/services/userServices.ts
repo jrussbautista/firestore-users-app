@@ -1,11 +1,11 @@
-import { and, collection, getDocs, or, query, where } from 'firebase/firestore';
+import { and, collection, getDocs, or, query, where, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { User } from '@/types';
 
 const USERS_COLLECTION_NAME = 'users';
+const usersRef = collection(firestore, USERS_COLLECTION_NAME);
 
 export async function getUsers(searchTerm: string = ''): Promise<User[]> {
-  const usersRef = collection(firestore, USERS_COLLECTION_NAME);
   const searchUsersQuery = query(
     usersRef,
     or(
@@ -36,4 +36,9 @@ export async function getUsers(searchTerm: string = ''): Promise<User[]> {
   );
   const results = await getDocs(searchTerm ? searchUsersQuery : usersRef);
   return results.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as User[];
+}
+
+
+export function createUser(userDetails: Omit<User, 'id'>) {
+  return addDoc(usersRef, userDetails)
 }
